@@ -1,0 +1,88 @@
+body { 
+    margin: 0;
+    overflow: hidden; 
+    display: flex; 
+}
+
+#scene2 {
+    width: 100vw;
+    height: 100vh;
+}
+
+#planeButton {
+    pointer-events: auto;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    background-color: white;
+    color: black;
+}
+
+.scene-container {
+    width: 100vw; /*promijeni u 50vw ako ću prikazivat 2 ekrana*/
+    height: 100vh;
+    pointer-events: none; /*Omogućuje da klikovi prolaze do Three.js scene */
+}
+
+#popup {
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    padding: 1rem;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    text-align: center;
+    animation: fadeIn 0.3s ease-out;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: none; 
+    pointer-events: auto;
+}
+  
+#text {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #333;
+}
+  
+#btn, #planeButton {
+    border: none;
+    padding: 0.7rem 1.3rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#btn {
+    background-color: #4f46e5;
+    color: white;
+}
+  
+#btn:hover {
+    background-color: #4338ca;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#btn:active {
+    transform: translateY(0);
+}
+  
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}

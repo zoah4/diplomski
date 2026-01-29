@@ -9,7 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "dev:kocka": "vite --open /index.html",
+    "dev:kocka": "vite --open /indexKocka.html",
     "dev:stozac": "vite --open /indexStozac.html",
     "dev:both": "vite"
   }

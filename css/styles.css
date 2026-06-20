@@ -1,0 +1,704 @@
+/* ===== GLOBAL ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    /*background: linear-gradient(135deg, #eef7f2 0%, #d9f3ff 100%);*/
+    background: #eaf2f7;
+    color: #1f2937;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* ===== NAVBAR ===== */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /*padding: 14px 40px;*/
+    padding: 0;
+    height: 65.6px;
+    backdrop-filter: blur(14px);
+    /*background: rgba(255,255,255,0.75);*/
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(20, 184, 166, 0.8)); /*nek je transparentno ako može bit al s  tim bojama*/
+    /*border-bottom: 1px solid rgba(255,255,255,0.3);*/
+    /*box-shadow: 0 4px 20px rgba(0,0,0,0.08);*/
+}
+
+/* Tabs */
+#tabs {
+    display: flex;
+    /*gap: 10px;*/
+    height: 100%;
+    width: 300px;
+}
+
+.tab {
+    height: 100%;
+    /*padding: 12px 22px;*/
+    /*width: 90px;*/
+    flex: 1;
+    border: none;
+    /*border-radius: 12px;*/
+    /*background: transparent;*/
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(20, 184, 166, 0.05));
+    color: #374151;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    background: linear-gradient(135deg, rgba(16,185,129,0.12), #11ac9a2f);
+    /*background: rgba(16,185,129,0.12);*/
+    color: #065f46;
+}
+
+.tab.active {
+    background: #eaf2f7;
+    color: #065f46;
+    /*box-shadow: 0 4px 12px rgba(16,185,129,0.3);*/
+}
+
+button:not(.tab, .tab.active) {
+    border: none;
+    padding: 10px 18px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.25s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+#btn {
+    background: rgb(50, 81, 184);
+    color: #d1d5db;
+}
+
+#planeButton {
+    pointer-events: auto;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+    background-color: white;
+    color: black;
+    padding: 8px 16px;
+    /*border-radius: 5px;*/
+    cursor: pointer;
+}
+
+#clearPlanesButton { /*sredi drukčiji izgleed*/
+    position: absolute; 
+    top: 66px; 
+    right: 10px; 
+    padding: 10px 12px;
+}
+
+#normalDiv {
+    pointer-events: auto;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    background-color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 9px;
+}
+
+/* Mode buttons */
+#modes {
+    display: flex;
+    gap: 10px;
+    margin-right: 20px;
+}
+
+#modes button {
+    border: none;
+    padding: 12px 14px;
+    border-radius: 9px;
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.25s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    color: #1f2937;
+}
+
+body.large-text,
+body.large-text p,
+body.large-text div.exercise-container p,
+body.large-text div.exercise-container button,
+body.large-text nav button,
+body.large-text #planeButton,
+body.large-text #clearPlanesButton {
+    font-size: 115% !important;
+}
+
+body.dyslexic-text,
+body.dyslexic-text p,
+body.dyslexic-text div.exercise-container p,
+body.dyslexic-text div.exercise-container button,
+body.dyslexic-text nav button,
+body.dyslexic-text .tab,
+body.dyslexic-text #planeButton,
+body.dyslexic-text #clearPlanesButton {
+    font-family: 'Open Dyslexic', Arial, sans-serif !important;
+    letter-spacing: 1.5px;
+}
+
+body.dyslexic-text #fontStyleBtn img {
+    transform: scaleX(-1);
+}
+
+body.dark-theme #darkModeBtn img {
+    transform: scaleX(-1);
+}
+
+/* ===== MAIN ===== */
+main {
+    padding: 80px 40px 40px 40px;
+    align-items: center;
+}
+
+/* ===== TEXT SECTIONS ===== */
+p {
+    max-width: 1200px;
+    margin: 20px auto; /*smanji 20 px na manje al samo za p di ide tekst umjesto bal bal bla*/
+    font-size: 1.05rem;
+    color: #374151;
+}
+
+/* ===== VISUALIZATION LAYOUT ===== */
+#visualization1 {
+    display: grid;
+    grid-template-columns: 280px 1fr 220px;
+    gap: 24px;
+    width: 100%;
+    max-width: 1500px;
+    /*margin: 40px auto;*/
+    margin: auto;
+    margin-top: 15px;
+    align-items: start;
+}
+
+#info-text {
+    max-width: 1300px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    border: solid black;
+    border-radius: 17px;
+    padding: 0 10px 25px 10px;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border: 1px solid rgba(255,255,255,0.35);
+}
+
+#info-text li {
+    margin-left: 40px;
+    margin-bottom: 2px;
+}
+
+#info-text p {
+    color: #065f46;
+    margin-bottom: 22px;
+    font-size: 20px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ===== PANELS ===== */
+#controls,
+#legend,
+.exercise-container {
+    background: rgba(255,255,255,0.72);
+    /*backdrop-filter: blur(14px);*/
+    border-radius: 17px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border: 1px solid rgba(255,255,255,0.35);
+}
+
+/*#legend {
+    min-height: 495px;
+}*/
+
+/* ===== SCENE ===== */
+.scene-container {
+    position: relative;
+    width: 100%;
+    height: 495px;
+    border-radius: 17px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.55);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2),
+                0 8px 30px rgba(0,0,0,0.08);
+}
+
+#scene1 {
+    margin-top: 15px;
+    max-width: 900px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ===== SLIDERS ===== */
+#controls label {
+    display: block;
+    margin-bottom: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+#controls input[type="range"] {
+    width: 100%;
+    margin-top: 8px;
+    accent-color: #059669; /*potamni boju da mi kod slidera posvijetli onaj dio prek kojeg ne ide točka*/
+    cursor: pointer;
+}
+
+/* ===== COLOR PICKERS ===== */
+#colorPickers {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 13px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+#colorPickers input[type="color"] {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 10px;
+    background: none;
+    cursor: pointer;
+}
+
+#colorPickers label {
+    margin-right: 8px;
+}
+
+/* ===== BUTTONS ===== */
+button {
+    transition: all 0.25s ease;
+}
+
+button:hover:not(.tab) {
+    transform: translateY(-2px);
+}
+
+#checkButton1-a:disabled {
+    background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+    color: #475569;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ===== EXERCISES ===== */
+.exercise-container {
+    max-width: 1400px;
+    margin: 40px auto;
+}
+
+.exercise {
+    background: white;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.exercise p:first-child {
+    color: #059669;
+    font-size: 1.1rem;
+}
+
+#text {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+#text p {
+    margin: 0px;
+}
+
+#answer {
+    margin-left: 20px;
+}
+
+/* Inputs */
+input[type="number"] {
+    width: 65px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    text-align: center;
+}
+
+/* Check buttons */
+[id^="checkButton"] {
+    margin-top: 16px;
+    margin-left: 87%;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #10b981, #14b8a6);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+[id^="checkButton"]:hover {
+    opacity: 0.92;
+}
+
+/* ===== POPUP ===== */
+#popup {
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    text-align: center;
+    animation: fadeIn 0.3s ease-out;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: none; 
+    pointer-events: auto;
+    color: black;
+}
+
+/* =========================================
+   DARK THEME
+========================================= */
+
+body.dark-theme {
+    background: #1a2233;
+    color: #e5e7eb;
+    backdrop-filter: blur(14px);
+}
+
+/* ===== NAVBAR ===== */
+
+body.dark-theme nav {
+    background: linear-gradient(
+        135deg,
+        rgba(6, 78, 59, 0.85),
+        rgba(15, 118, 110, 0.85)
+    );
+
+    /*border-bottom: 1px solid rgba(255,255,255,0.06);*/
+
+    /*box-shadow:
+        0 4px 20px rgba(0,0,0,0.45),
+        0 0 20px rgba(16,185,129,0.08);*/
+
+    /*box-shadow:
+        inset 0 0 0 1px rgba(16,185,129,0.25),
+        0 4px 14px rgba(16,185,129,0.16);*/
+}
+
+/* ===== TABS ===== */
+
+body.dark-theme .tab {
+    background: transparent;
+    color: #cbd5e1;
+}
+
+body.dark-theme .tab:hover {
+    background: rgba(16,185,129,0.12);
+    color: #6ee7b7;
+
+    /*box-shadow:
+        -12px 0 10px -8px rgba(16,185,129,0.33),
+        12px 0 10px -8px rgba(16,185,129,0.39);*/
+}
+
+body.dark-theme .tab.active {
+    /*background: linear-gradient(
+        135deg,
+        rgba(16,185,129,0.22),
+        rgba(20,184,166,0.18)
+    );*/
+    background: #1a2233;
+
+    color: #ffffff;
+
+    box-shadow:
+        -12px 0 10px -8px rgba(16,185,129,0.33),
+        12px 0 10px -8px rgba(16,185,129,0.39);
+
+    /*border: none;*/
+}
+
+/* ===== TEXT ===== */
+
+body.dark-theme p,
+body.dark-theme #text,
+body.dark-theme label,
+body.dark-theme #normalDiv {
+    color: #d1d5db;
+}
+
+/* ===== PANELS ===== */
+
+body.dark-theme #controls,
+body.dark-theme #legend,
+body.dark-theme .exercise-container,
+body.dark-theme .exercise,
+body.dark-theme #popup, 
+body.dark-theme #info-text {
+    background: rgba(30, 41, 59, 0.75);
+
+    border: 1px solid rgba(255,255,255,0.06);
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,0.45),
+        inset 0 0 0 1px rgba(255,255,255,0.02);
+
+    color: #f3f4f6;
+}
+
+body.dark-theme .exercise,
+body.dark-theme #info-text {
+    background: rgba(44, 54, 67, 0.75);
+}
+
+body.dark-theme #popup {
+    background: rgba(17, 24, 39, 0.98);
+    border-color: rgba(247, 249, 255, 0.2);
+}
+
+body.dark-theme #controls label {
+    color: #d1d5db;
+}
+
+/* ===== SCENE ===== */
+
+body.dark-theme .scene-container {
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(16,185,129,0.07),
+            transparent 55%
+        ),
+        rgba(15,23,42,0.95);
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.04),
+        0 8px 30px rgba(0,0,0,0.5);
+}
+
+/*body.dark-theme #info-text {
+    max-width: 1300px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    border: solid black;
+    border-radius: 17px;
+    padding: 0 10px 25px 10px;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border: 1px solid rgba(255,255,255,0.35);
+}
+
+body.dark-theme #info-text li {
+    margin-left: 40px;
+    margin-bottom: 2px;
+}*/
+
+body.dark-theme #info-text p {
+    color: #ffffff;
+}
+
+/* ===== BUTTONS ===== */
+
+body.dark-theme button:not(.tab, .tab.active) {
+    color: #f3f4f6;
+
+    box-shadow:
+        0 4px 14px rgba(0,0,0,0.4);
+
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+body.dark-theme .btn {
+    background: linear-gradient(
+        135deg,
+        #1f2937,
+        #111827
+    );
+}
+
+body.dark-theme button:not(.tab, .tab.active):hover {
+    box-shadow:
+        0 6px 18px rgba(16,185,129,0.25);
+}
+
+body.dark-theme #checkButton1-a:disabled {
+    background: linear-gradient(135deg, #8190a6, #495c7c);
+    color: #dadcde;
+}
+
+/* ===== SPECIAL BUTTONS ===== */
+
+body.dark-theme #planeButton,
+body.dark-theme #clearPlanesButton,
+body.dark-theme #normalDiv {
+    background: rgba(31,41,55,0.92);
+    color: #f3f4f6;
+}
+
+/* ===== SLIDERS ===== */
+
+body.dark-theme input[type="range"] {
+    accent-color: #37dc9f;
+}
+
+/* ===== NUMBER INPUTS ===== */
+
+body.dark-theme input[type="number"] {
+    background: rgba(30, 41, 59, 0.75);
+    color: #f9fafb;
+
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ===== RADIO BUTTONS ===== */
+
+body.dark-theme input[type="radio"] {
+    accent-color: #10b981;
+}
+
+/* ===== CHECK BUTTONS ===== */
+
+body.dark-theme [id^="checkButton"] {
+    background: linear-gradient(
+        135deg,
+        #059669,
+        #0f766e
+    );
+}
+
+body.dark-theme [id^="checkButton"]:hover {
+    background: linear-gradient(
+        135deg,
+        #10b981,
+        #14b8a6
+    );
+}
+
+/* ===== POPUP ===== */
+
+body.dark-theme #popup {
+    color: #f3f4f6;
+}
+
+/* ===== EXERCISE TITLES ===== */
+
+body.dark-theme .exercise p:first-child {
+    color: #6ee7b7;
+}
+
+/* ===== COLOR PICKER SECTIONS ===== */
+
+body.dark-theme #colorPickers {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* ===== MODES BUTTONS ===== */
+
+body.dark-theme #modes button {
+    background: #1a2233;
+    color: #f3f4f6;
+    
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.4),
+        0 0 11px 1px rgba(1, 255, 171, 0.67);
+
+}
+
+body.dark-theme #modes img,  
+body.dark-theme #clearPlanesButton img {
+    filter: brightness(9) invert(1);
+}
+
+/* ===== SCROLLBAR ===== */
+
+body.dark-theme ::-webkit-scrollbar {
+    width: 10px;
+}
+
+body.dark-theme ::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 10px;
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
+}
+
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+    #visualization1 {
+        grid-template-columns: 1fr;
+    }
+
+    #controls,
+    #legend {
+        width: 100%;
+    }
+
+    .scene-container,
+    #scene2 {
+        min-height: 450px;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 14px;
+        padding: 20px;
+    }
+
+    main {
+        padding: 20px;
+    }
+
+    .tab {
+        padding: 10px 14px;
+    }
+}

@@ -6,11 +6,8 @@
     "vite": "^6.4.1"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --open /html/index.html",
     "build": "vite build",
-    "preview": "vite preview",
-    "dev:kocka": "vite --open /indexKocka.html",
-    "dev:stozac": "vite --open /indexStozac.html",
-    "dev:both": "vite"
+    "preview": "vite preview"
   }
 }

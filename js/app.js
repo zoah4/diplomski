@@ -5,17 +5,14 @@ import { setBackgroundColorS, setConeColor } from './main/mainStozac.js';
 
 let currentPage = 'page1';
 
-// Funkcija za prikaz stranice 1 (Zadatci za kocku)
-async function showPage1() {
-    console.log("Prikazujem stranicu 1 - Kocka");
-    
-    // Očisti prethodnu stranicu
+//prikaz stranice Kocka
+async function showPage1() {    
+    //očisti prethodnu stranicu
     if (currentPage === 'page2') {
         await cleanupPage2();
     }
     
     const main = document.getElementById('main-content');
-    //tu ću kopirat html sa svojih stranica
     main.innerHTML = `
         <div>
             <div id="info-text">
@@ -43,28 +40,25 @@ async function showPage1() {
         </div>
     `;
     
-    // Inicijaliziraj prvu stranicu
+    //inicijaliziraj 1. stranicu
     await initPage1();
     currentPage = 'page1';
 
     await applyCurrentThemeToPage();
     
-    // Update aktivnog gumba
+    //update aktivnog gumba na headeru
     document.getElementById('page1Btn').classList.add('active');
     document.getElementById('page2Btn').classList.remove('active');
 }
 
-// Funkcija za prikaz stranice 2 (Bojanje površine)
+//prikaz stranice Stožac
 async function showPage2() {
-    console.log("Prikazujem stranicu 2 - Bojanje površine");
-    
-    // Očisti prethodnu stranicu
+    //očisti prethodnu stranicu
     if (currentPage === 'page1') {
         await cleanupPage1();
     }
     
     const main = document.getElementById('main-content');
-    //tu ću kopirat html sa svojih stranica
     main.innerHTML = `
         <div id="pageHolder">
             <div id="info-text">
@@ -121,43 +115,48 @@ async function showPage2() {
         </div>
     `;
     
-    // Inicijaliziraj drugu stranicu
+    //inicijaliziraj 2. stranicu
     await initPage2();
     currentPage = 'page2';
 
     await applyCurrentThemeToPage();
     
-    // Update aktivnog gumba
+    //update aktivnog gumba na headeru
     document.getElementById('page2Btn').classList.add('active');
     document.getElementById('page1Btn').classList.remove('active');
 }
 
+//funkcija za promjenu veličine fonta
 function fontSizeFunction() {
     document.body.classList.toggle('large-text');
 }
 
+//funkcija za promjenu stila fonta
 function fontStyleFunction() {
     document.body.classList.toggle('dyslexic-text');
 }
 
+//funkcija za promjenu teme aplikacije
 function changePagesTheme() {
     document.body.classList.toggle('dark-theme');
     const isDark = document.body.classList.contains('dark-theme');
     
     if (isDark) {
-        setBackgroundColorK(0xf3f4f6);  // tamna
-        setBackgroundColorS(0xf3f4f6);  // tamna
+        //svijetla pozadina, tamni objekt
+        setBackgroundColorK(0xf3f4f6); 
+        setBackgroundColorS(0xf3f4f6); 
         setCubeColor(0x000000);
         setConeColor(0x000000);
     } else {
-        setBackgroundColorK(0x000000);  // svijetla
-        setBackgroundColorS(0x000000);  // svijetla
+        //tamna pozadina, svijetli objekt
+        setBackgroundColorK(0x000000); 
+        setBackgroundColorS(0x000000); 
         setCubeColor(0xf3f4f6);
         setConeColor(0xf3f4f6);
     }    
 }
 
-// Funkcija za primjenu teme na trenutnu stranicu
+//funkcija za primjenu teme na trenutnu stranicu
 async function applyCurrentThemeToPage() {
     const isDark = document.body.classList.contains('dark-theme');
     const color = isDark ? 0xf3f4f6 : 0x000000;
@@ -166,25 +165,24 @@ async function applyCurrentThemeToPage() {
     if (currentPage === 'page1') {
         if (typeof setBackgroundColorK === 'function') {
             setBackgroundColorK(color);
-            setConeColor(colorElement);
             setCubeColor(colorElement);
         }
     } else if (currentPage === 'page2') {
         if (typeof setBackgroundColorS === 'function') {
             setBackgroundColorS(color);
             setConeColor(colorElement);
-            setCubeColor(colorElement);
         }
     }
 }
 
-// Event listeneri za navigaciju
+//event listeneri za promjenu stranica
 document.getElementById('page1Btn').addEventListener('click', showPage1);
 document.getElementById('page2Btn').addEventListener('click', showPage2);
 
+//event listeneri za inkluzivni dizajn
 document.getElementById('fontSizeBtn').addEventListener('click', fontSizeFunction);
 document.getElementById('fontStyleBtn').addEventListener('click', fontStyleFunction);
 document.getElementById('darkModeBtn').addEventListener('click', changePagesTheme);
 
-// Inicijalno prikaži prvu stranicu
+//početna stranica je 1. stranica
 showPage1();

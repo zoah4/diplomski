@@ -12,29 +12,23 @@ let planeC, circleC, ellipseC, parabolaC, hyperbolaC;
 let inputCPlane, inputCCircle, inputCEllipse, inputCParabola, inputCHyperbola;
 let animationId;
 
+//funkcija za postavljanje pozadinske boje interaktivnog ekrana
 export function setBackgroundColorS(color) {
     if (scene) {
         scene.background = new THREE.Color(color);
     }
 }
 
+//funkcija za postavljanje boje stošca
 export function setConeColor(color) {
-    /*if (materialM) {
-        materialM.color.setHex(color);
-        console.log("Boja kocke promijenjena u:", color.toString(16));
-    } else {
-        console.warn("cubeMaterial još nije inicijaliziran");
-    }*/
     if (materialW) {
         materialW.color.setHex(color);
-        console.log("Boja kocke promijenjena u:", color.toString(16));
     } else {
         console.warn("cubeMaterial još nije inicijaliziran");
     }
 }
 
 export async function init(containerId = 'scene2') {
-
     const container = document.getElementById(containerId);
 
     if (!container) {
@@ -42,7 +36,7 @@ export async function init(containerId = 'scene2') {
         return;
     }
 
-    // Očisti container ako već ima sadržaj
+    //očisti container ako već ima sadržaj
     while (container.firstChild) {
         container.removeChild(container.firstChild);
     }
@@ -50,11 +44,8 @@ export async function init(containerId = 'scene2') {
     //postavljanje scene, kamere i rendera
     scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer({antialias: true, stencil: true});
-
     container.appendChild(renderer.domElement);
-
     renderer.setSize(container.clientWidth, container.clientHeight);
-
     camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
 
     //geometrija stošca (radijus 1, visina 2, 32 segmenta) -> globalne varijable
@@ -64,7 +55,7 @@ export async function init(containerId = 'scene2') {
     let geometry = new THREE.ConeGeometry(coneRadius, coneHeight, coneSegments);
     geometry.computeBoundingSphere();
 
-    //materijal stošca koji koristi vertex boje
+    //materijal stošca 
     materialM = new THREE.MeshBasicMaterial({ 
         stencilWrite: false, 
         stencilFunc: THREE.EqualStencilFunc, 
@@ -74,18 +65,20 @@ export async function init(containerId = 'scene2') {
         color: 0xffffff 
     });
 
+    //materijal žičanog djela stošca
     materialW = new THREE.MeshBasicMaterial({ 
         color: 0xfefefe,
         wireframe: true 
     });
 
-    //kreiramo stožac
+    //kreiramo 1. stožac
     cone1w = new THREE.Mesh(geometry, materialW);
     cone1m = new THREE.Mesh(geometry, materialM);
     cone1 = new THREE.Group();
     cone1.add(cone1w);
     cone1.add(cone1m);
 
+    //kreiramo 2. stožac + spajamo 2 stošca
     cone2w = new THREE.Mesh(geometry, materialW);
     cone2m = new THREE.Mesh(geometry, materialM);
     cone2 = new THREE.Group();
@@ -113,48 +106,17 @@ export async function init(containerId = 'scene2') {
     cone1.getWorldPosition(cone1Position);
     cone2.getWorldPosition(cone2Position);
 
-    //console.log("Pozicija cone1:", cone1Position);
-    //console.log("Pozicija cone2:", cone2Position);
-
-    /*function getConnectionPoint() {
-        const midPoint = new THREE.Vector3();
-        midPoint.addVectors(cone1Position, cone2Position).multiplyScalar(0.5);
-        
-        return midPoint;
-    }
-
-    console.log("pozicija spojne točke 2 stošca: ", getConnectionPoint());
-
-    // Funkcija za crtanje spojne točke
-    function drawConnectionPoint() {
-        // Stvori sferu za vizualizaciju
-        const geometry = new THREE.SphereGeometry(0.05, 16, 16);
-        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        const sphere = new THREE.Mesh(geometry, material);
-        
-        // Postavi na spojnu točku
-        sphere.position.copy(getConnectionPoint());
-        
-        // Oznaci da znamo što je ovo
-        sphere.name = "connectionPoint";
-        
-        // Dodaj u scenu
-        scene.add(sphere);
-        
-        return sphere; // Vrati referencu ako želiš upravljati njome kasnije
-    }
-
-    // I odmah pozovi da se nacrta
-    drawConnectionPoint();*/ //ovo mi ne treba(OMNT)
     //sve boje ravnina i krivulja
     planeC = 0x00ff00;
     circleC = 0x0000ff;
     ellipseC = 0xff00ff;
     parabolaC = 0xff9100;
-    hyperbolaC = 0xf72585; //zamjeni di koristim te boje s varijablama
+    hyperbolaC = 0xf72585; 
 
-    // 1️⃣ Kreiranje ravnine (početna pozicija ispod stošca)
+    //geometrija ravnine
     const planeGeometry = new THREE.PlaneGeometry(8, 8);
+
+    //materijal ravnine
     const planeMaterial = new THREE.MeshBasicMaterial({ 
         color: planeC,
         side: THREE.DoubleSide, 
@@ -166,17 +128,17 @@ export async function init(containerId = 'scene2') {
         stencilZPass: THREE.ReplaceStencilOp
     });
 
+    //kreiramo ravninu
     plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.position.set(0, -0.49 * coneHeight, 0); //postavi ravninu kod donjeg stošca
     plane.rotation.x = Math.PI / 2;
 
-    // Normalna strelica
-    //let arrowHelper = null;
-
+    //dodajemo stožac i ravninu u grupu
     group2 = new THREE.Group();
     group2.add(group);
     group2.add(plane);
 
+    //dodajemo grupu u scenu
     scene.add(group2);
 
     plane.updateMatrixWorld();
@@ -185,45 +147,34 @@ export async function init(containerId = 'scene2') {
 
     plane.getWorldPosition(planePosition);
 
+    //materijal konike
     let curveMaterial = new LineMaterial({ 
         color: curveColor,
         linewidth: 4, //debljina krivulje
         transparent: false
     });
 
+    //ispuna konike
     let fillMaterial = new THREE.MeshBasicMaterial({
         color: curveColor,
         side: THREE.DoubleSide
     });
 
-    //console.log("Pozicija plane:", planePosition);
-
+    //funkcija za računanje jednadžbe ravnine
     function getPlaneEquation() {
         plane.updateMatrixWorld(true);
 
-        // 1. Dobij world poziciju (točku na ravnini)
+        //world pozicija (točka na ravnini (x, y, z))
         origin = new THREE.Vector3();
         plane.getWorldPosition(origin);
         
-        // 2. Dobij world normalu
+        //world normalu n(A, B, C)
         normal = new THREE.Vector3(0, 0, 1);
-
-        /*const normalArrow = new THREE.ArrowHelper(
-        normal.clone().normalize(), // smjer
-        origin,                          // početna točka
-        1,                               // duljina strelice
-        0xff0000,                        // boja (crvena)
-        0.2,                             // duljina vrha strelice
-        0.1                              // širina vrha strelice
-        );
-
-    // 4️⃣ Dodamo strelicu kao dijete ravnine
-        plane.add(normalArrow);*/
-        normal.applyQuaternion(plane.quaternion); // Rotiraj normalu s rotacijom ravnine
+        //rotacija normale s rotacijom ravnine
+        normal.applyQuaternion(plane.quaternion); 
         normal.normalize();
         
-        // 3. Izračunaj D (constant) za jednadžbu ravnine Ax + By + Cz + D = 0
-        // Formula: D = -(Ax₀ + By₀ + Cz₀) gdje je (x₀, y₀, z₀) točka na ravnini
+        //računam D za jednadžbu ravnine Ax + By + Cz + D = 0
         const D = -(normal.x * origin.x + normal.y * origin.y + normal.z * origin.z);
 
         return {
@@ -243,36 +194,17 @@ export async function init(containerId = 'scene2') {
 
     const equation = getPlaneEquation();
 
-    //console.log("A: ", equation.A);
-    //console.log("B: ", equation.B);
-    //console.log("C: ", equation.C);
-    //console.log("D: ", equation.D);
-
-    function getDoubleConeEquation() { //vrati "jednadžbe" za x, y i z 
+    //funkcija za računanje nagiba stošca
+    function getDoubleConeEquation() { 
         const height = cone1.children[1].geometry.parameters.height;
         const radius = cone1.children[1].geometry.parameters.radius;
 
         //nagib stošca
         const k = radius/height; //tg(alfa)
-
-        //console.log("height: ", height);
-        //console.log("radius: ", radius);
-        //console.log("k: ", k);
-
-        //k = 0.5, a k^2 = 0.25
-
-        //jednadžba stošca -> x^2 + z^2 = k*y^2 = x^2 + z^2 = 0.25*y^2
-
-        //jednadžba ravnine -> Ax + By + Cz + D = 0 -> z = -(Ax + By + D)/C
         
         return k;
-
     }
 
-    //treba mi funkcija za crtanje koja dobiva jednadžbe od x, y i z i s 
-    // for petljom crtam točke koje onda crtaju krivulju
-    //možda da imam funkciju za stvaranje točaka i spremanje u polje 
-    // i funkcija koja crta pomoću točaka spremljenih u to polje
     curveColor = 0x0000ff;
 
     isHyperbola = false;
@@ -288,21 +220,11 @@ export async function init(containerId = 'scene2') {
         const C = planeEquation.C;
         const D = planeEquation.D;
 
-        console.log("Jednadžba ravnine je ...")
-        console.log("A: ", A);
-        console.log("B: ", B);
-        console.log("C: ", C);
-        console.log("D: ", D);
-        //console.log("\nDebug vrijednosti:");
+        isHyperbola = (curveType(k) == "H") ? true : false;
 
-        isHyperbola = (Math.abs(sliderRotation.value) >= 0.52 && Math.abs(sliderRotation.value) <= 1) ? true : false;
-
-        /*for (let testPhi = 0; testPhi <= Math.PI*2; testPhi += Math.PI/2) {
-            const denominator = A * k * Math.cos(testPhi) + C * k * Math.sin(testPhi) + B;
-            console.log(`Phi=${testPhi.toFixed(2)}: denominator=${denominator.toFixed(4)}`);
-        }*/
-
+        //generiranje točaka za koniku
         for (let phi = 0; phi <= 2 * Math.PI; phi += 0.002) {
+            //provjera da li je nazivnik jednak 0, ako je idi na sljedeći phi
             const denom = A * k * Math.cos(phi) + B + C * k * Math.sin(phi);
             if (Math.abs(denom) < 1e-8) continue; 
 
@@ -310,13 +232,13 @@ export async function init(containerId = 'scene2') {
             const x = k * y * Math.cos(phi);
             const z = k * y * Math.sin(phi);
 
-            if(y >= -coneHeight && y <= coneHeight) {   //onemogućava čudno ponašanje parabole, ali provjeri zašto ponekad linija ide ispod ruba stošca umjesto od ruba stošca
+            if(y >= -coneHeight && y <= coneHeight) {
                 worldPoint = new THREE.Vector3(x, y, z);
-                //if(Math.abs(y) > 1.8) {console.log("world: ", worldPoint);}
-                
-                const localPoint = plane.worldToLocal(worldPoint.clone()); 
-                //console.log("local: ", localPoint);
 
+                //pretvorba iz world u lokalnu točku na ravnini
+                const localPoint = plane.worldToLocal(worldPoint.clone()); 
+
+                //ako je hiperbola onda imam 2 dijela, inače 1
                 if(isHyperbola) {
                     if(denom > 0) {
                         line1.push(localPoint);
@@ -328,20 +250,6 @@ export async function init(containerId = 'scene2') {
                 } 
             }       
         }
-
-        /*if(isHyperbola) {
-            //TEST!!!
-            let {localPoint1, localPoint2, localPoint3, localPoint4} = clacEndPoints(A, B, C, D, k);
-            if(localPoint1 && localPoint2) {
-                line1.push(localPoint1);
-                line1.push(localPoint2);
-            }
-
-            if(localPoint3 && localPoint4) {
-                line2.push(localPoint3);
-                line2.push(localPoint4);
-            }
-        }*/
 
         //ovaj dio je za hiperbolu kad na 1 ili 2 djela sjeće ravnina stožac
         if(line1.length > 0 && line2.length > 0) {
@@ -357,12 +265,7 @@ export async function init(containerId = 'scene2') {
             points.push(points[0].clone());
         }
 
-        //console.log("line1: ", line1);
-        //console.log("line2: ", line2);
-
-        //line1 = [];
-        //line2 = [];
-
+        //o kojoj krivulji je riječ postavi njenu boju
         const type = curveType(k);
         if(type == "K") {
             curveColor = circleC;
@@ -374,15 +277,17 @@ export async function init(containerId = 'scene2') {
             curveColor = hyperbolaC;
         }
 
+        //kreiranje krivulje iz točaka uz određenu boju
         createCurveFromPoints(points, curveColor);
     }
 
+    //funkcija za kreiranje konika iz točaka uz određenu boju
     function createCurveFromPoints(points, color) {
+        //izbriši postojeće krivulje i ispune
         removeExistingCurves();
-        //console.log("curves 1: ", curves);
         removeExistingMesh();
-        //console.log("points from points: ", points);
         
+        //materijal krivulje
         curveMaterial = new LineMaterial({ 
             color: color,
             linewidth: 4, //debljina krivulje
@@ -394,64 +299,68 @@ export async function init(containerId = 'scene2') {
             container.clientHeight
         );
 
-        //prije postavljanja curvegeometry provjery dal mi je krivulja hiperbola ili ne
-        //ako je razdvoji tako da crtam 2 krivulje umjesto 1 i obje dodaj u curves inače radi ko i do sad
+        //ako je krivulja hiperbola razdvoji tako da crtam 2 krivulje umjesto 1 i obje dodam u curves, inače radim s 1 krivuljom
         if(isHyperbola) {
             const pointslength = points[0].length;
-            //console.log("***HIPERBOLA***");
             
+            //sortiranje točaka
             const points1 = points.pop().sort((a, b) => a.y - b.y);
+            //krivulja je kontinuirana linija pa 1. točku dodajem i na kraj niza
             points1.push(points1[0].clone());
 
-            //console.log("points1: ", points1);
-
+            //geometrija 1. krivulje
             const curveGeometry1 = new LineGeometry().setFromPoints(points1);
 
+            //kreiranje krivulje
             curve1 = new Line2(curveGeometry1, curveMaterial);
 
             curve1.computeLineDistances();
 
+            //dodavanje krivulje na ravninu
             plane.add(curve1);
             curves.push(curve1);
 
-            //console.log("points1 len: ", points1.length)
-            //console.log("points len: ", pointslength)
-
-            //console.log("jesu mi iste 1. i zadnja točka kod points1: ", points1[0], points1[points1.length - 1]);
             //pretvori sve točke iz vector3 u vector2
-
             const shapePoints1 = points1.map(p =>
                 new THREE.Vector2(p.x, p.y)
             );
 
             shape1 = new THREE.Shape(shapePoints1);
 
+            //geometrija 1. ispune
             const shapeGeometry1 = new THREE.ShapeGeometry(shape1);
 
+            //materijal ispune
             fillMaterial = new THREE.MeshBasicMaterial({
                 color: color,
                 side: THREE.DoubleSide
             });
 
+            //kreiranje 1. ispune
             fillMesh1 = new THREE.Mesh(shapeGeometry1, fillMaterial);
 
+            //dodavanje ispune na ravninu
             plane.add(fillMesh1);
             meshes.push(fillMesh1);
 
-            if((points1.length -1) != pointslength) {
+            //provjera dal postoji i 2. dio hiperbole
+            if((points1.length - 1) != pointslength) {
+                //sortiranje točaka
                 const points2 = points.pop().sort((a, b) => a.y - b.y);
+                //krivulja je kontinuirana linija pa 1. točku dodajem i na kraj niza
                 points2.push(points2[0].clone());
-                //console.log("points2: ", points2);
             
+                //geometrija 2. krivulje
                 const curveGeometry2 = new LineGeometry().setFromPoints(points2);
 
+                //kreiranje krivulje
                 curve2 = new Line2(curveGeometry2, curveMaterial);
                 
                 curve2.computeLineDistances();
                 
+                //dodavanje krivulje na ravninu
                 plane.add(curve2);
                 curves.push(curve2);
-                //console.log("jesu mi iste 1. i zadnja točka kod points2: ", points2[0], points2[points2.length - 1]);
 
                 //pretvori sve točke iz vector3 u vector2
                 const shapePoints2 = points2.map(p =>
@@ -460,21 +369,25 @@ export async function init(containerId = 'scene2') {
 
                 shape2 = new THREE.Shape(shapePoints2);
 
+                //geometrija 2. ispune
                 const shapeGeometry2 = new THREE.ShapeGeometry(shape2);
 
+                //kreiranje 2. ispune
                 fillMesh2 = new THREE.Mesh(shapeGeometry2, fillMaterial);
 
+                //dodavanje ispune na ravninu
                 plane.add(fillMesh2);
                 meshes.push(fillMesh2);
             } 
         } else {
-            //console.log("points from points else: ", points);
+            //geometrija krivulje
             const curveGeometry = new LineGeometry().setFromPoints(points);
         
+            //kreiranje krivulje
             curve = new Line2(curveGeometry, curveMaterial);
-            //curve.computeLineDistances();
+
+            //dodavanje krivulje na ravninu
             plane.add(curve);
-        
             curves.push(curve);
 
             //pretvori sve točke iz vector3 u vector2
@@ -484,94 +397,74 @@ export async function init(containerId = 'scene2') {
 
             shape = new THREE.Shape(shapePoints);
 
+            //geometrija ispune
             const shapeGeometry = new THREE.ShapeGeometry(shape);
 
+
+            //materijal ispune
             fillMaterial = new THREE.MeshBasicMaterial({
                 color: color,
                 side: THREE.DoubleSide
             });
 
+            //kreiranje ispune
             fillMesh = new THREE.Mesh(shapeGeometry, fillMaterial);
 
+            //dodavanje ispune na ravninu
             plane.add(fillMesh);
             meshes.push(fillMesh);
         }
-        
-        //console.log("Krivulja dodana kao dijete ravnine");
-        //console.log("Broj točaka:", points.length);
-        //console.log("Prva točka (lokalno na ravnini):", points[0]);
-        
-        /*// Dodaj i točku u sredini ravnine za referencu
-        const centerGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-        const centerMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-        const centerSphere = new THREE.Mesh(centerGeometry, centerMaterial);
-        // Centar ravnine je u (0,0,0) lokalno
-        centerSphere.position.set(0, 0, 0);
-        plane.add(centerSphere);
-        curves.push(centerSphere);*/
     }
 
-    // Uklanjanje postojećih krivulja
+    //funkcija za uklanjanje postojećih krivulja
     function removeExistingCurves() {
-        // Uklanjanje svih linija i točaka iz scene
+        //uklanjanje svih linija i točaka iz scene
         curves.forEach(curve => {
-            // Krivulja je sada dijete ravnine
+            //krivulja je dijete ravnine
             if (curve.parent) {
                 curve.parent.remove(curve);
             }
             if (curve.geometry) curve.geometry.dispose();
             if (curve.material) curve.material.dispose();
         });
-        
         curves = [];
     }
 
-    // Uklanjanje postojećih krivulja
+    //funkcija za uklanjanje postojećih ispuna
     function removeExistingMesh() {
-        // Uklanjanje svih linija i točaka iz scene
+        //uklanjanje svih ispuna iz scene
         meshes.forEach(mesh => {
-            // Krivulja je sada dijete ravnine
+            //ispuna je dijete ravnine
             if (mesh.parent) {
                 mesh.parent.remove(mesh);
             }
             if (mesh.geometry) mesh.geometry.dispose();
             if (mesh.material) mesh.material.dispose();
         });
-        
         meshes = [];
     }
 
     //provjera tipa krivulje
     function curveType(k) {
-        //uvrsti jednadžbu ravnine u jednadžbu stošca ili obrnuto da dobim jednadžbu oblika Ax^2 + By^2 + Cx + Dy + Exy + F = 0
-        //jednadžba stošca mi je x^2 + z^2 = k^2y^2 
-        //jednadžba ravnine mi je A'x + B'y + C'z + D' = 0 -> y = -(A'/B')x -(C'/B')z -(D'/B')
+        //uvrštavanje jednadžbe ravnine u jednadžbu stošca da dobim jednadžbu oblika Ax^2 + By^2 + Cx + Dy + Exy + F = 0
+        //jednadžba stošca -> x^2 + z^2 = k^2y^2 
+        //jednadžba ravnine -> A'x + B'y + C'z + D' = 0 -> y = -(A'/B')x -(C'/B')z -(D'/B')
         //x^2 + z^2 = k*(-(A'/B')x -(C'/B')z -(D'/B'))^2
-        //x^2 + z^2 = k*((A'/B')^2*x^2 + (C'/B')^2*z^2 + (D'/B')^2 + 2*(A'/B')*(C'/B')*xz + 2*(A'/B')*(D'/B')*x + 2*(C'/B')*(D'/B')*z)
         //(k*(A'/B')^2 - 1)*x^2 + (k*(C'/B')^2 - 1)*z^2 + 2*(A'/B')*(D'/B')*x + 2*(C'/B')*(D'/B')*z + 2*(A'/B')*(C'/B')*xz + (D'/B')^2 = 0
-        //A = k*(A'/B')^2 - 1   x^2
-        //B = k*(C'/B')^2 - 1   z^2
-        //E = 2*(A'/B')*(C'/B') xz
+        //A = k*(A'/B')^2 - 1    x^2
+        //B = k*(C'/B')^2 - 1    z^2
+        //E = 2*(A'/B')*(C'/B')  xz
         const planeEquation = getPlaneEquation();
         
         const A_ = planeEquation.A;
         const B_ = planeEquation.B;
         const C_ = planeEquation.C;
-        //const D_ = planeEquation.D;
-        console.log("A_: ", A_);
-        console.log("B_: ", B_);
-        console.log("C_: ", C_);
 
         const A = Math.pow((k), 2)*Math.pow((A_/B_), 2) - 1;
         const B = Math.pow((k), 2)*Math.pow((C_/B_), 2) - 1;
         const C = Math.pow((k), 2)*(A_/B_)*(C_/B_);
 
-        console.log("A: ", A);
-        console.log("B: ", B);
-        console.log("C: ", C);
-
         const det = A*B - C*C;
-        console.log("det: ", det);
 
         if(Math.abs(det) < 0.0001) {
             return "P"; //parabola
@@ -585,102 +478,77 @@ export async function init(containerId = 'scene2') {
         }
     }
 
-    //pretvaranje vrijednosti slidera kako sam definirala u kuteve(radijani)
+    //pretvaranje vrijednosti slidera u kuteve(radijani)
     function calcAngle(t) {
-        //console.log("U funkciji calcAngle sam!!!");
-        //console.log("t: ", t);
-        //t = t/sliderRotation.max;
+        //računanje nagiba stošca
         let parabolaAngleRad = coneHeight/coneRadius;
-        //console.log("parabolaAngleRad: ", parabolaAngleRad)
-        let deg = 180/Math.PI;
-        console.log("parabola kut: ", (Math.atan(parabolaAngleRad))*deg);
-        console.log("t: ", t);
-        if((Math.abs(t) > 0.5)) {
-            console.log("HIPERBOLA");
+        
+        if((Math.abs(t) > 0.5)) { //hiperbola
             curveColor = hyperbolaC;
-            //hiperbola
             if(t < 0) { //za slučaj (t => -1 && t <= -0.52)
-                //kut od 63.435° do 90° ali isključujući 63.435°
+                //kut od parabolaAngle° do 90°, ali isključujući parabolaAngle°
                 const angleRad = -(Math.PI/2 - (Math.PI/2 - Math.atan(parabolaAngleRad)) * ((t+1)/(0.5)));
-                console.log("angleRad H -: ", angleRad*deg);
                 return angleRad;
-                //console.log(Math.PI/2) 
             } else { //za slučaj (t => 0.52 && t <= 1)
-                //kut od -90° do -63.435° ali isključujući -63.435° 
+                //kut od -90° do -parabolaAngle° ali isključujući -parabolaAngle°
                 const angleRad =  Math.atan(parabolaAngleRad) - (Math.atan(parabolaAngleRad) - Math.PI/2) * ((t-0.5)/(1 - 0.5));
-                console.log("angleRad H +: ", angleRad*deg);
                 return angleRad;
             }
-        } else if((Math.abs(t) == 0.5)) {
-            console.log("PARABOLA");
+        } else if((Math.abs(t) == 0.5)) { //parabola
             curveColor = parabolaC;
-            //parabola
             if(t < 0) { //za slučaj (t == -0.5)
                 const angleRad = -Math.atan(parabolaAngleRad);
-                console.log("angleRad P -: ", angleRad*deg);
                 return angleRad;        
             } else { //za slučaj (t == 0.5)
                 const angleRad = Math.atan(parabolaAngleRad);
-                console.log("angleRad P +: ", angleRad*deg);
                 return angleRad;
             }
-        } else if((Math.abs(t) <= 0.5 && Math.abs(t) > 0)) {
-            console.log("ELIPSA");
+        } else if((Math.abs(t) <= 0.5 && Math.abs(t) > 0)) { //elipsa
             curveColor = ellipseC;
-            //elipsa
             if(t < 0) { //za slučaj (t => -0.48 && t <= -0.02)
-                //kut od 0° do 63.435° ali isključujući 0°      
+                //kut od 0° do parabolaAngle° ali isključujući 0°      
                 const angleRad = -(Math.atan(parabolaAngleRad) - (Math.atan(parabolaAngleRad) - 0) * ((t+0.5)/(0.5)));
-                console.log("angleRad E -: ", angleRad*deg);
                 return angleRad;   
             } else { //za slučaj ((t => 0.02 && t <= 0.48)
-                //kut od -63.435° do 0° ali isključujući 0°
+                //kut od -parabolaAngle° do 0° ali isključujući 0°
                 const angleRad =  0 - (0 - Math.atan(parabolaAngleRad)) * ((t)/(0.5));
-                console.log("angleRad E +: ", angleRad*deg);
                 return angleRad;
             }
-        } else if(t == 0) {
+        } else if(t == 0) { //kružnica
             curveColor = circleC;
-            console.log("KRUŽNICA");
-            //kružnica
             const angleRad = 0;
-            console.log("angleRad C: ", angleRad*deg);
             return angleRad;
-        } else {
-            console.log("PROBLEM!!!!!!")
-        }
+        } 
     }
 
+    //funkcija za update stošca
     function updateCone(newRadius, newHeight, newSegmentsNumber) {
-
         coneRadius = newRadius;
         coneHeight = newHeight;
         coneSegments = Math.pow(2, 4 + newSegmentsNumber);
 
-        //console.log("VISINA: ", coneHeight);
-        //console.log("RADIJUS: ", coneRadius);
-        console.log("SEGMENTIIII: ", coneSegments);
-
-        // obriši staru geometriju
+        //obriši staru geometriju
         geometry.dispose();
 
+        //nova geometrija stošca
         geometry = new THREE.ConeGeometry(coneRadius, coneHeight, coneSegments);
 
-        // postavi novu geometriju na sve mesh-eve
+        //postavi novu geometriju na sve mesh-eve
         cone1w.geometry = geometry;
         cone1m.geometry = geometry;
         cone2w.geometry = geometry;
         cone2m.geometry = geometry;
 
-        // popravi pozicije
+        //popravi pozicije
         cone2.position.y = coneHeight;
         group.position.y = -coneHeight / 2;
 
+        //update slidera za ravninu kada ide gore-dolje kod promjene visne stošca
         sliderY.min = -coneHeight*0.995;
         sliderY.max = coneHeight*0.995;
         sliderY.step = coneHeight - sliderY.max;
 
-        // ako je trenutna vrijednost van raspona – popravi je
+        //ako je trenutna vrijednost van raspona – popravi je
         const current = parseFloat(sliderY.value);
 
         if (current > coneHeight) sliderY.value = coneHeight;
@@ -691,53 +559,46 @@ export async function init(containerId = 'scene2') {
         updatePlane(planeC);
     }
 
+    //funkcija za update boje krivulje
     function updateCurveColor(circleC, ellipseC, parabolaC, hyperbolaC) {
+        //dohvati nagib
         const k = getDoubleConeEquation();
+        //saznaj tip krivulje
         const type = curveType(k);
-        if(type == "K") {
+        //ovisno o tipu namjesti novu boju za taj tip
+        if(type == "K") { //kružnica
             curveMaterial.color.set(circleC);
             fillMaterial.color.set(circleC);
-        } else if(type == "E") {
+        } else if(type == "E") { //elipsa
             curveMaterial.color.set(ellipseC);
             fillMaterial.color.set(ellipseC);
-        } else if(type == "P") {
+        } else if(type == "P") { //parabola
             curveMaterial.color.set(parabolaC);
             fillMaterial.color.set(parabolaC);
-        } else if(type == "H") {
+        } else if(type == "H") { //hiperbola
             curveMaterial.color.set(hyperbolaC);
             fillMaterial.color.set(hyperbolaC);
         }
     }
 
-
-    //const res = kanonskiOblikElipse(5, 5, 4, 2, -6, -3);
-    //console.log(res);
-
-    //const res2 = kanonskiOblikElipse(2, 3, 0, 8, 12, 16);
-    //console.log(res2);
-
-    // Pozovi funkciju nakon svake promjene ravnine
+    //funkcija za update ravnine nakon svake promjene
     function updatePlane(newColor) {
-        //checkSimple();
-        //updateCurveColor();
+        //postavljanje nove boje ravnine
         planeMaterial.color.set(newColor);
+        //računanje nagiba stošca
         const k = getDoubleConeEquation();
-        console.log("k: ", k);
-        console.log(curveType(k));
 
+        //kreiranje točaka
         createPoints(k);
     }
     
-    // Dohvati slidere
+    //dohvati slidere
     const sliderY = document.getElementById("sliderY");
     const sliderX = document.getElementById("sliderX");
     const sliderRotation = document.getElementById("sliderRotation");
     const sliderHeight = document.getElementById("sliderHeight");
     const sliderRadius = document.getElementById("sliderRadius");
     const sliderSegment = document.getElementById("sliderSegment");
-    //console.log(sliderSegment)
-    //console.log(sliderRadius)
-    //console.log(sliderSegment.value)
 
     //dohvati colorpickere
     const planeColorPicker = document.getElementById("planeColorPicker");
@@ -746,10 +607,10 @@ export async function init(containerId = 'scene2') {
     const parabolaColorPicker = document.getElementById("parabolaColorPicker");
     const hyperbolaColorPicker = document.getElementById("hyperbolaColorPicker");
 
-    // Postavljamo kameru
+    //postavljamo kameru
     camera.position.z = 5;
 
-    // Varijable za rotaciju stošca
+    //varijable za rotaciju stošca
     let isMouseDown = false;
     let lastX = 0;
     let lastY = 0;
@@ -774,7 +635,7 @@ export async function init(containerId = 'scene2') {
     mouseMove = (e) => {
         if (isMouseDown) {
             if (lastX === 0 && lastY === 0) { 
-                // Postavi početne vrijednosti kada prvi put pomakneš miš
+                //postavi početne vrijednosti kada prvi put pomakneš miš
                 lastX = e.clientX;
                 lastY = e.clientY;
                 return;
@@ -782,27 +643,21 @@ export async function init(containerId = 'scene2') {
             const deltaX = e.clientX - lastX;
             const deltaY = e.clientY - lastY;
 
-            // Rotacija stošca prema pomicanju miša
-            /*group2.rotation.x += deltaY * 0.01;
-            group2.rotation.y += deltaX * 0.01;
-            group2.rotation.z += (deltaY+deltaX)/2 * 0.01;*/
-
-            // Normalizirani vektori za rotaciju kamere
+            //normalizirani vektori za rotaciju kamere
             const axisY = new THREE.Vector3(0, 1, 0); // vertikalna rotacija
             const axisX = new THREE.Vector3(1, 0, 0); // horizontalna rotacija
 
-            // Rotiraj kameru oko centra scene (0,0,0)
+            //rotacija kamere oko centra scene (0,0,0)
             camera.position.applyAxisAngle(axisY, deltaX * 0.01);
             camera.position.applyAxisAngle(axisX, deltaY * 0.01);
 
-            // Kamera uvijek gleda prema centru scene
+            //kamera uvijek gleda prema centru scene
             camera.lookAt(scene.position);
             lastX = e.clientX;
             lastY = e.clientY;
         }
     }
 
-    // Event za kretanje miša
     window.addEventListener('mousemove', mouseMove);
 
     //inputy funkcija
@@ -811,7 +666,6 @@ export async function init(containerId = 'scene2') {
         updatePlane(planeC);
     }
 
-    // Event listeneri za promjenu vrijednosti slidera
     sliderY.addEventListener("input", inputY);
 
     //inputx funkcija
@@ -840,9 +694,7 @@ export async function init(containerId = 'scene2') {
     }
 
     sliderHeight.addEventListener("input", inputCone);
-
     sliderRadius.addEventListener("input", inputCone);
-
     sliderSegment.addEventListener("input", inputCone);
 
     //inputCPlane funkcija
@@ -885,15 +737,14 @@ export async function init(containerId = 'scene2') {
 
     hyperbolaColorPicker.addEventListener("input", inputCHyperbola);
 
-    // Inicijalno ažuriranje
+    //inicijalno ažuriranje
     updatePlane(planeC);
     updateCurveColor(circleC, ellipseC, parabolaC, hyperbolaC);
-    //calcAngle(parseFloat(sliderRotation.value))
 
-    // Animacija renderiranja
+    //animacija renderiranja
     function animate() {
         requestAnimationFrame(animate);
-
+        //renderiranje scene
         if (renderer && scene && camera) {
             renderer.render(scene, camera);
         }
@@ -901,27 +752,25 @@ export async function init(containerId = 'scene2') {
 
     animate();
 
-    //windowresize funkcija -> dal mi ovo treba
+    //windowresize funkcija
         windowResize = () => {
             renderer.setSize(container.clientWidth, container.clientHeight);
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
     }
 
-    // Ažuriramo veličinu rendera ako se prozor promijeni
+    //ažuriramo veličinu rendera ako se prozor promijeni
     window.addEventListener('resize', windowResize);
 }
 
-export function cleanup() {
-   console.log("Čistim stranicu 2");
-    
-    // Zaustavi animaciju
+export function cleanup() {    
+    //zaustavi animaciju
     if (animationId) {
         cancelAnimationFrame(animationId);
         animationId = null;
     }
     
-    // Očisti Three.js resurse
+    //očisti Three.js resurse
     if (renderer) {
         renderer.dispose();
         if (renderer.domElement && renderer.domElement.parentNode) {
@@ -930,7 +779,7 @@ export function cleanup() {
     }
     
     if (scene) {
-        // Očisti sve iz scene
+        //očisti sve iz scene
         while (scene.children.length > 0) {
             const child = scene.children[0];
             if (child.isMesh) {
@@ -940,11 +789,7 @@ export function cleanup() {
             scene.remove(child);
         }
     }
-    /*
-let mouseDown, mouseUp, mouseMove, inputX, inputY, inputRotation, inputCone, windowResize;
-let animationId; */
     
-    // Resetiraj reference
     scene = null;
     camera = null;
     renderer = null;
@@ -1068,7 +913,6 @@ let animationId; */
     }
 }
 
-// Ako se učitava kao samostalna stranica
 if (import.meta.url === window.location.href) {
     init('scene2');
 }
